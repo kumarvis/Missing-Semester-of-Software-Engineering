@@ -91,6 +91,9 @@ After running these two commands, the container is gone.
 ![docker](images/docker_container03.jpeg)
 
 
+### Docker best practices and important URLS
+
+1. Pass the **--no-cache** option to docker build, forcing every statement in the Dockerfile to be run every time the image is built.
 
 
 
