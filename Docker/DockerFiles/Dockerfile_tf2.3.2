@@ -1,0 +1,27 @@
+FROM tensorflow/tensorflow:2.3.2-gpu
+#FROM tensorflow/tensorflow:2.2.2-gpu
+LABEL maintainer="kumarvishal.01@gmail.com"
+
+## Avoiding user interaction with tz data while building docker container
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt-get update -y --fix-missing
+RUN apt-get install -y --fix-missing curl git libopencv-dev vim
+RUN apt-get install -y wget bzip2
+
+# Add sudo
+RUN apt-get -y install sudo
+# Add user kumar-docker with no password, add to sudo group
+RUN adduser --disabled-password --gecos '' kumar-docker
+RUN adduser kumar-docker sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER kumar-docker
+WORKDIR /home/kumar-docker/
+RUN chmod a+rwx /home/kumar-docker/
+
+### Install pip and opencv
+RUN pip3 install --upgrade pip
+RUN pip3 install opencv-python
+RUN pip3 install pillow h5py
+
+CMD ["/bin/bash"]
