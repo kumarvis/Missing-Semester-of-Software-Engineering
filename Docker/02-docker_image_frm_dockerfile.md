@@ -63,3 +63,7 @@ docker build -t my_first_image .
 ```
 
 ![docker](images/docker-image-from-dockerfile.png)
+
+```shell
+sudo docker build -f Dockerfile.tf2.4.2-gpu  . -t kumarvishal01/tf2.4-gpu:v0.0.1 --rm
+```
