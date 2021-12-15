@@ -1,0 +1,69 @@
+# nVidia TensorRT Base Image
+ARG TRT=20.08
+FROM nvcr.io/nvidia/pytorch:${TRT}-py3
+
+LABEL maintainer "Kumar Vishal  <kumarvishal.01@gmail.com>"
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Kolkata
+# Install some basic utilities
+RUN apt-get update && apt-get install -y \
+    curl ca-certificates sudo git bzip2 \
+    libx11-6 cmake git libgtk2.0-dev pkg-config \
+    libgtk2.0-dev pkg-config libavcodec-dev \
+    libavformat-dev libswscale-dev python-dev python-numpy libtbb2 libtbb-dev \
+    libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev unzip wget vim \
+    libprotobuf-dev protobuf-compiler libavdevice-dev \
+    libglu1-mesa-dev freeglut3-dev \
+    && rm -rf /var/lib/apt/lists/*
+#--------------install opencv cpp libs with DNN module enabled--------------------------
+# check yours GPU compute capability at https://developer.nvidia.com/cuda-gpus#compute 
+# and set COMPUTE_CAPABILITY variable accordingly
+# Set CUDNN_INCLUDE_DIR and CUDNN_LIBRARIES and dont FORGET "/" at the end of PATH
+
+ARG COMPUTE_CAPABILITY=6.1
+ARG OPNECV_VERSION=4.5.2
+RUN cd \
+    && wget -O opencv.zip https://github.com/opencv/opencv/archive/$OPNECV_VERSION.zip \
+    && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/$OPNECV_VERSION.zip \
+    && unzip opencv.zip \
+    && unzip opencv_contrib.zip \
+    && mv opencv-$OPNECV_VERSION opencv \
+    && mv opencv_contrib-$OPNECV_VERSION opencv_contrib \
+    && cd ~/opencv \
+    && mkdir build \
+    && cd build \
+    && cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D OPENCV_ENABLE_NONFREE=ON \
+    -D WITH_CUDA=ON \
+    -D WITH_CUDNN=ON \
+    -D OPENCV_DNN_CUDA=ON \
+    -D ENABLE_FAST_MATH=1 \
+    -D CUDA_FAST_MATH=1 \
+    -D CUDA_ARCH_BIN=$COMPUTE_CAPABILITY \
+    -D WITH_CUBLAS=1 \
+    -D CUDNN_INCLUDE_DIR=/usr/include/ \
+    -D CUDNN_LIBRARIES=/usr/lib/x86_64-linux-gnu/ \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules .. \
+    && make -j8 \
+    && sudo make install \
+    && cd \
+    && rm -rf opencv
+#---------pip installation-------------------------------------------------------
+RUN pip install pycuda
+#-------------pytorch installation and onnx installation-------------------------
+#RUN conda install pytorch==1.6.0 torchvision==0.7.0 cudatoolkit=10.2 -c pytorch
+#RUN conda install -y -c conda-forge onnx=1.5.0
+#------------coco api installation-----------------------------------------------
+#RUN conda install -c conda-forge pycocotools
+#------------ conda packages installation----------------------------------------
+RUN conda install -y -c anaconda pyqt natsort toolz
+RUN conda install -y -c conda-forge opencv pytesseract matplotlib
+#RUN conda install -y -c conda-forge pycuda
+#----------clean unused conda packages and set the default command to bash-------
+RUN conda clean -ya
+WORKDIR /workspace
+RUN ["/bin/bash"]
+

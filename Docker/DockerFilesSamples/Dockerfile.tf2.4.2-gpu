@@ -1,0 +1,63 @@
+FROM tensorflow/tensorflow:2.4.2-gpu
+LABEL maintainer "Kumar Vishal  <kumarvishal.01@gmail.com>"
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+##---------------install prerequisites---------------
+RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends \
+	protobuf-compiler \
+	geany \
+	python \
+    python-dev \ 
+    python-numpy \
+	python3-setuptools \
+	eog \
+	gedit \
+	build-essential \
+	ssh \
+	ca-certificates \
+	curl \
+	cmake \
+	git \
+	wget \
+	unzip \
+	yasm \
+	pkg-config \
+	libswscale-dev \
+	libtbb2 \
+	libtbb-dev \
+	libjpeg-dev \
+	libgflags-dev \
+	libgoogle-glog-dev \
+	libprotobuf-dev \
+	liblmdb-dev \
+	libpng-dev \
+	libtiff-dev \
+	libavformat-dev \
+	libpq-dev \
+	libgtk2.0-dev \
+	libhdf5-dev \
+	libcurl4-openssl-dev\
+	libprotoc-dev \
+	swig\
+	qt5-default \
+	libboost-all-dev \
+	libboost-dev \
+	xdg-utils \
+	snapd \
+	rsync \
+    libavcodec-dev \
+    libdc1394-22-dev  \
+    libavdevice-dev \
+    libglu1-mesa-dev \ 
+    freeglut3-dev \
+	vim \
+	&& rm -rf /var/lib/apt/lists/*
+#--------------pip installations-----------------------------
+RUN pip install --upgrade pip
+RUN pip install pandas opencv-python matplotlib
+RUN pip install tensorflow-datasets
+#----------------set the working directory-------------------
+WORKDIR /workspace
+ENV PYTHONPATH /workspace
+RUN ["/bin/bash"]
