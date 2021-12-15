@@ -63,3 +63,9 @@ docker build -t my_first_image .
 ```
 
 ![docker](images/docker-image-from-dockerfile.png)
+
+Docker build command by specifying name of the file(-f), tag naming convention i.e. (username/image_name:tag_name) and removing any intermidiate file generation(--rm).
+
+```shell
+sudo docker build -f Dockerfile.tf2.4.2-gpu  . -t kumarvishal01/tf2.4-gpu:v0.0.1 --rm
+```
